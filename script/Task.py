@@ -3,6 +3,7 @@ import time
 import paramiko
 
 class H3C_Switch():
+
     def __init__(self):
         self.HOST=''
         self.PORT=''

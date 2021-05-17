@@ -6,6 +6,19 @@ from email.utils import formataddr
 
 from config import my_sender, my_pass, my_user, smtp_server, subject
 
+def get_msg(success_ips,faild_ips):
+    Content = "======巡检结果如下=======" + '\n'
+    Content += '巡检成功: ' +'\n'
+    for ip in success_ips:
+        Content +=  ip
+        Content += '\n'
+    Content += '巡检失败: ' + '\n'
+    for ip in faild_ips:
+        Content +=  ip
+        Content += '\n'
+    Content = Content + "-----------" + '\n' + "这是一份自动邮件，请不要回复！！"
+    return Content
+
 def mail(msg):
     ret = True
     try:
@@ -24,7 +37,10 @@ def mail(msg):
 
 
 if __name__ == '__main__':
-    msg = '邮件功能测试'
+    s_ips = ['1.1.1.1','2.2.2.2']
+    f_ips = ['11.11.11.11','22.22.22.22']
+    msg  = get_msg(s_ips,f_ips)
+    # msg = '邮件功能测试'
     ret = mail(msg)
     if ret:
         print("邮件发送成功")
