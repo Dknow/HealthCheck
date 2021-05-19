@@ -29,7 +29,7 @@ class Task(db.Model):
     port = db.Column(db.Integer, nullable=False)
     user = db.Column(db.String(128))
     password = db.Column(db.String(128))
-
+    device_type= db.Column(db.String(128), nullable=False)
     def _format(self):
         d = {}
         d['id'] = self.id
@@ -38,6 +38,8 @@ class Task(db.Model):
         d['port'] = self.port
         d['user'] = self.user
         d['password'] = self.password
+        d['device_type'] = self.device_type
+
         return d
 
 

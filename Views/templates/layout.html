@@ -21,9 +21,9 @@
     <!-- HTML5 Shiv and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-        <![endif]-->
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
 
     <script src="static/js/modernizr.min.js"></script>
 
@@ -46,23 +46,23 @@
 
 
             <ul class="nav navbar-nav navbar-right pull-right">
-                <li>
-                    <!-- Notification -->
-                    <div class="notification-box">
-                        <ul class="list-inline m-b-0">
-                            <li>
-                                <a href="javascript:void(0);" class="right-bar-toggle">
-                                    <i class="zmdi zmdi-notifications-none"></i>
-                                </a>
-                                <div class="noti-dot" style="display: none">
-                                    <span class="dot"></span>
-                                    <span class="pulse"></span>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <!-- End Notification bar -->
-                </li>
+<!--                <li>-->
+<!--                    &lt;!&ndash; Notification &ndash;&gt;-->
+<!--                    <div class="notification-box">-->
+<!--                        <ul class="list-inline m-b-0">-->
+<!--                            <li>-->
+<!--                                <a href="javascript:void(0);" class="right-bar-toggle">-->
+<!--                                    <i class="zmdi zmdi-notifications-none"></i>-->
+<!--                                </a>-->
+<!--                                <div class="noti-dot" style="display: none">-->
+<!--                                    <span class="dot"></span>-->
+<!--                                    <span class="pulse"></span>-->
+<!--                                </div>-->
+<!--                            </li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                    &lt;!&ndash; End Notification bar &ndash;&gt;-->
+<!--                </li>-->
                 <li>
                     <a href="/loginout">退出</a>
                 </li>
@@ -91,29 +91,29 @@
                 <!-- Navigation Menu-->
                 <ul class="navigation-menu">
                     <li class="has-submenu">
-                        <a href="/filter"><i class="zmdi zmdi-search"></i> <span> 搜索 </span> </a>
-                        <ul class="submenu">
-                            <li><a href="/filter">条件筛选</a></li>
-                            <li><a href="/">自定义</a></li>
-                        </ul>
+                        <a href="/add_task"><i class="zmdi zmdi-widgets"></i> <span> 添加任务 </span> </a>
+<!--                        <ul class="submenu">-->
+<!--                            <li><a href="/filter">条件筛选</a></li>-->
+<!--                            <li><a href="/">自定义</a></li>-->
+<!--                        </ul>-->
                     </li>
                     <li>
-                        <a href="/task"><i class="zmdi zmdi-archive"></i> <span> 任务 </span> </a>
+                        <a href="/task_list"><i class="zmdi zmdi-archive"></i> <span> 任务列表 </span> </a>
                     </li>
                     <li>
-                        <a href="/plugin"><i class="zmdi zmdi-puzzle-piece"></i> <span> 插件 </span> </a>
+                        <a href="/task_result"><i class="zmdi zmdi-puzzle-piece"></i> <span> 查看结果 </span> </a>
                     </li>
-                    <li>
-                        <a href="/analysis"><i class="zmdi zmdi-widgets"></i> <span> 统计 </span> </a>
-                    </li>
-                    <li class="has-submenu">
-                        <a href="/config?config=nascan"><i class="zmdi zmdi-settings"></i> <span> 配置 </span> </a>
-                        <ul class="submenu">
-                            <li><a href="/config?config=nascan">爬虫引擎</a></li>
-                            <li><a href="/config?config=vulscan">扫描引擎</a></li>
-                        </ul>
+<!--                    <li>-->
+<!--                        <a href="/analysis"><i class="zmdi zmdi-widgets"></i> <span> 统计 </span> </a>-->
+<!--                    </li>-->
+<!--                    <li class="has-submenu">-->
+<!--                        <a href="/config?config=nascan"><i class="zmdi zmdi-settings"></i> <span> 配置 </span> </a>-->
+<!--                        <ul class="submenu">-->
+<!--                            <li><a href="/config?config=nascan">爬虫引擎</a></li>-->
+<!--                            <li><a href="/config?config=vulscan">扫描引擎</a></li>-->
+<!--                        </ul>-->
 
-                    </li>
+<!--                    </li>-->
 
                 </ul>
                 <!-- End navigation menu  -->
@@ -162,7 +162,7 @@
 <script type="text/javascript">
     var csrf_token = "{{ csrf_token() }}";
     $.ajaxSetup({
-        beforeSend: function(xhr, settings) {
+        beforeSend: function (xhr, settings) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
             }
