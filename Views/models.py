@@ -30,6 +30,7 @@ class Task(db.Model):
     user = db.Column(db.String(128))
     password = db.Column(db.String(128))
     device_type= db.Column(db.String(128), nullable=False)
+
     def _format(self):
         d = {}
         d['id'] = self.id
@@ -51,7 +52,11 @@ class result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.Integer)
     start_time =db.Column(db.DateTime,default = datetime.now,nullable=False)
-    cpu = db.Column(db.Integer)
+    cpu = db.Column(db.String(128))
+    uptime = db.Column(db.String(128))
+    cpu = db.Column(db.String(128))
+    men = db.Column(db.String(128))
+    ps = db.Column(db.String(128))
     """
     other result write hear
     

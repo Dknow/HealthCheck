@@ -1,13 +1,19 @@
 import time
 
 import paramiko
+from models import db, result
+from Alert import mail
+
 
 class H3C_Switch():
-    def __init__(self):
-        self.HOST=''
-        self.PORT=''
-        self.USER=''
-        self.PASSWORD=''
+    device_type = "H3C_Switch"
+
+    def __init__(self, HOST, PORT, USER, PASSWORD, device_id):
+        self.HOST = HOST
+        self.PORT = PORT
+        self.USER = USER
+        self.PASSWORD = PASSWORD
+        self.device_id = device_id
 
     def bridge(self):
         # 创建SSH连接
@@ -36,6 +42,7 @@ class H3C_Switch():
         print("script_run_status:0")
         print("script_error_info:")
         print("inspect_info:")
+        return result
 
     def cpuusage(self):
         # 创建SSH连接
@@ -56,9 +63,11 @@ class H3C_Switch():
                 value += line.split()
         print("inspect_result:" + value[0].strip())
 
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return value[0].strip()
+
     def device(self):
         # 创建SSH连接
         ssh = paramiko.SSHClient()
@@ -83,9 +92,10 @@ class H3C_Switch():
             result += "Name:" + device_name + " State++++" + device_state + "@@@@"
         print("inspect_result:" + result)
 
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return result
 
     def fan(self):
         # 创建SSH连接
@@ -114,6 +124,7 @@ class H3C_Switch():
         print("script_run_status:0")
         print("script_error_info:")
         print("inspect_info:")
+        return result
 
     def flash(self):
         # 创建SSH连接
@@ -137,9 +148,11 @@ class H3C_Switch():
         total = result[0].strip()
         free = result[3].strip("(").strip()
         print("inspect_result:%.2f%" % ((int(total) - int(free)) / int(total) * 100))
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        inspect_result = "%.2f%" % ((int(total) - int(free)) / int(total) * 100)
+        return inspect_result
 
     def irf(self):
         # 创建SSH连接
@@ -163,9 +176,12 @@ class H3C_Switch():
         for i in range(0, len(value), 3):
             result += "IRF_PORT:" + value[i] + " Statue++++" + value[i + 2] + "@@@@"
         print("inspect_result:" + result)
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        inspect_result = result
+        return inspect_result
+
     def men(self):
         # 创建SSH连接
         ssh = paramiko.SSHClient()
@@ -183,10 +199,12 @@ class H3C_Switch():
         for line in res:
             if line.find("Mem:") != -1 and line.find("LowMem") == -1 and line.find("HighMem") == -1:
                 value += line.split()
-        print("inspect_result:" + value[len(value) - 1].strip())
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        inspect_result = value[len(value) - 1].strip()
+        print("inspect_result:" + inspect_result)
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return inspect_result
 
     def ps(self):
         # 创建SSH连接
@@ -211,11 +229,12 @@ class H3C_Switch():
             powerid = value[i]
             state = value[i + 1]
             result = result + "powerID:" + powerid + " state++++" + state + "@@@@"
-        # print(result)
+        inspect_result = result
         print("inspect_result:" + result)
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return inspect_result
 
     def temperature(self):
         # 创建SSH连接
@@ -240,10 +259,13 @@ class H3C_Switch():
             sensor = value[i + 1]
             temperature = value[i + 3]
             result += "Sensor:" + sensor + " temperature++++" + temperature + "@@@@"
+        inspect_result = result
         print("inspect_result:" + result)
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return inspect_result
+
     def uptime(self):
         # 创建SSH连接
         ssh = paramiko.SSHClient()
@@ -267,9 +289,11 @@ class H3C_Switch():
         days = value_list[value_list.index("days") - 1]
         weeks = value_list[value_list.index("weeks") - 1]
         print("inspect_result:" + str((int(weeks) * 7 + int(days))).strip())
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        inspect_result = str((int(weeks) * 7 + int(days))).strip()
+        return inspect_result
 
     def s6800_ps(self):
         # 创建SSH连接
@@ -294,18 +318,46 @@ class H3C_Switch():
             powerid = value[i]
             state = value[i + 1]
             result = result + "powerID: " + powerid + " state++++" + state + "@@@@"
+        inspect_result = result
+
         print("inspect_result:" + result)
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return inspect_result
+
+    def start(self):
+        try:
+            uptime = self.uptime()
+            cpuusage = self.cpuusage()
+            men = self.men()
+            ps = self.ps()
+            # result = uptime+'|'+cpuusage+'|'+men+'|'+ps
+            # from Views import db
+            new = result(
+                device_id=self.device_id,
+                cpu=cpuusage,
+                uptime=uptime,
+                men=men,
+                ps=ps
+            )
+            db.session.add(new)
+            db.session.flush
+            print('H3C_Switch scan success:', self.device_id)
+        except Exception as e:
+            msg = 'H3C_Switch scan faild,device_id:{} error:{} '.format(self.device_id, str(e))
+            mail(msg)
 
 
 class HUAWEI_Switch():
-    def __init__(self):
-        self.HOST=''
-        self.PORT=''
-        self.USER=''
-        self.PASSWORD=''
+    device_type = 'HUAWEI_Switch'
+
+    def __init__(self, HOST, PORT, USER, PASSWORD, device_id):
+        self.HOST = HOST
+        self.PORT = PORT
+        self.USER = USER
+        self.PASSWORD = PASSWORD
+        self.device_id = device_id
 
     def uptime(self):
         # 创建SSH连接
@@ -329,8 +381,47 @@ class HUAWEI_Switch():
         value_list = result.split()
         days = value_list[value_list.index("days") - 1]
         weeks = value_list[value_list.index("weeks") - 1]
-        print("inspect_result:" + str((int(weeks) * 7 + int(days))).strip())
-        print("script_run_status:0")
-        print("script_error_info:")
-        print("inspect_info:")
+        inspect_result = str((int(weeks) * 7 + int(days))).strip()
+        # print("inspect_result:" + str((int(weeks) * 7 + int(days))).strip())
+        # print("script_run_status:0")
+        # print("script_error_info:")
+        # print("inspect_info:")
+        return inspect_result
 
+    def start(self):
+        try:
+            uptime = self.uptime()
+            new = result(
+                device_id=self.device_id,
+                # cpu=cpuusage,
+                uptime=uptime,
+                # men=men,
+                # ps=ps
+            )
+            db.session.add(new)
+            db.session.flush
+            print('HUAWEI_Switch scan success:', self.device_id)
+        except Exception as e:
+            msg = 'HUAWEI_Switch scan faild,device_id:{} error:{} '.format(self.device_id, str(e))
+            mail(msg)
+
+
+def scan():
+    print('hello scan')
+    # 获取配置
+    from models import Task
+    tasks = Task.query.filter().all()
+    for t in tasks:
+        if t.device_type == HUAWEI_Switch.device_type:
+            SCAN = HUAWEI_Switch(t.host, t.port, t.user, t.password, t.id)
+            SCAN.start()
+        elif t.device_type == H3C_Switch.device_type:
+            SCAN = H3C_Switch(t.host, t.port, t.user, t.password, t.id)
+            SCAN.start()
+
+    # scan
+    # alert email
+
+
+if __name__ == '__main__':
+    pass
