@@ -1,9 +1,11 @@
 import time
 
 import paramiko
-from models import db, result
-from Alert import mail
 
+from Views.models import db
+from Views.models import Result
+
+from Views.Alert import mail
 
 class H3C_Switch():
     device_type = "H3C_Switch"

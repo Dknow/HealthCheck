@@ -5,9 +5,10 @@ from flask_wtf.csrf import CSRFError
 from sqlalchemy import and_
 import json
 
-from Views import app,db
+from Views import app, db
 from Views.common import logincheck
-from Views.models import Task
+from Views.models import Task, Result
+
 
 @app.route('/login', methods=['GET', 'POST'])
 @app.route('/', methods=['GET'])
@@ -81,8 +82,11 @@ def task_add():
 @app.route('/task_list', methods=['GET'])
 def task_list():
     tasks = Task.query.filter().all()
-    retdata = {'items': [t._format for t in tasks]}
-    return render_template('task_list.html', **retdata)
+    items= [t._format for t in tasks]
+    # retdata = {'items': items}
+    # return render_template('task_list.html', **retdata)
+    return render_template('task_list.html', items = items)
+
 
 
 @app.route('/add_task', methods=['POST', 'PUT'])
@@ -143,8 +147,8 @@ def task_del(id):
     return json.dumps(retdata)
 
 
-@app.route('/task_result', methods=['GET', "DELETE"])
-def result():
+@app.route('/task_result/<int:task_id>', methods=['GET', "DELETE"])
+def result(task_id=None):
     '''
     params
     deviceID
@@ -157,8 +161,12 @@ def result():
 
     :return:
     '''
-    retdata = {}
-    return render_template('task_result.html', **retdata)
+    res={}
+    if task_id:
+        r = Result.query.filter_by(task_id=task_id).first()
+        if r: res = r._format
+
+    return render_template('task_result.html', res=res)
 
 
 @app.route('/report', methods=['POST', "DELETE"])

@@ -44,22 +44,33 @@ class Task(db.Model):
         return d
 
 
-class result(db.Model):
+class Result(db.Model):
     __tablename__ = 'result'
     __table_args__ = {
         'extend_existing': True,
     }
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.Integer)
+    task_id = db.Column(db.Integer)
     start_time =db.Column(db.DateTime,default = datetime.now,nullable=False)
     cpu = db.Column(db.String(128))
     uptime = db.Column(db.String(128))
-    cpu = db.Column(db.String(128))
     men = db.Column(db.String(128))
     ps = db.Column(db.String(128))
     """
     other result write hear
     
     """
+    def _format(self):
+        d = {}
+        d['id'] = self.id
+        d['device_id'] = self.device_id
+        d['task_id'] = self.task_id
+        d['start_time'] = self.start_time
+        d['cpu'] = self.cpu
+        d['uptime'] = self.uptime
+        d['men'] = self.men
+        d['ps'] = self.ps
+        return d
 if __name__ == "__main__":
     db.create_all()

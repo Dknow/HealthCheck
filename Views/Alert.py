@@ -4,7 +4,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
-from config import my_sender, my_pass, my_user, smtp_server, subject
+from Views.config import my_sender, my_pass, my_user, smtp_server, subject
 
 def mail(msg):
     ret = True
