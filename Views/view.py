@@ -79,16 +79,6 @@ def task_add():
     return render_template('add_task.html')
 
 
-@app.route('/task_list', methods=['GET'])
-def task_list():
-    tasks = Task.query.filter().all()
-    items= [t._format for t in tasks]
-    # retdata = {'items': items}
-    # return render_template('task_list.html', **retdata)
-    return render_template('task_list.html', items = items)
-
-
-
 @app.route('/add_task', methods=['POST', 'PUT'])
 def task_petch():
     '''
@@ -147,6 +137,15 @@ def task_del(id):
     return json.dumps(retdata)
 
 
+@app.route('/task_list', methods=['GET'])
+def task_list():
+    tasks = Task.query.filter().all()
+    items = [t._format for t in tasks]
+    # retdata = {'items': items}
+    # return render_template('task_list.html', **retdata)
+    return render_template('task_list.html', items=items)
+
+
 @app.route('/task_result/<int:task_id>', methods=['GET', "DELETE"])
 def result(task_id=None):
     '''
@@ -161,7 +160,7 @@ def result(task_id=None):
 
     :return:
     '''
-    res={}
+    res = {}
     if task_id:
         r = Result.query.filter_by(task_id=task_id).first()
         if r: res = r._format

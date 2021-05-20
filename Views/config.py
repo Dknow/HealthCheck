@@ -9,7 +9,9 @@ TOKEN_KEY = "tokenmiyue"
 # alert Email Settings
 my_sender = '517422815@qq.com'  # 填写发信人的邮箱账号
 my_pass = 'wrrzokvoqilkbgcd'  # 发件人邮箱授权码
-my_user = '517422815@qq.com'  # 收件人邮箱账号
+# my_user = '517422815@qq.com'  # 收件人邮箱账号
+my_user = '754363287@qq.com'  # 收件人邮箱账号
+
 # smtp_server =  'smtp.163.com'
 smtp_server = "smtp.qq.com"
 subject = "ZW Alert"  # 邮件的主题，也可以说是标题

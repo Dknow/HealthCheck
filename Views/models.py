@@ -5,18 +5,21 @@ from datetime import datetime
 
 from Views import db
 
+
 class User(db.Model):
     __tablename__ = 'user'
     __table_args__ = {
         'extend_existing': True,
     }
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(128), unique=True,nullable=False)
+    username = db.Column(db.String(128), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
     update_time = db.Column(db.TIMESTAMP, nullable=False)
-    create_time = db.Column(db.DateTime,default = datetime.now,nullable=False)
+    create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
     def __repr__(self):
         return '<User %r>' % self.username
+
 
 class Task(db.Model):
     __tablename__ = 'task'
@@ -29,7 +32,7 @@ class Task(db.Model):
     port = db.Column(db.Integer, nullable=False)
     user = db.Column(db.String(128))
     password = db.Column(db.String(128))
-    device_type= db.Column(db.String(128), nullable=False)
+    device_type = db.Column(db.String(128), nullable=False)
 
     def _format(self):
         d = {}
@@ -52,7 +55,7 @@ class Result(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     device_id = db.Column(db.Integer)
     task_id = db.Column(db.Integer)
-    start_time =db.Column(db.DateTime,default = datetime.now,nullable=False)
+    start_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
     cpu = db.Column(db.String(128))
     uptime = db.Column(db.String(128))
     men = db.Column(db.String(128))
@@ -61,6 +64,7 @@ class Result(db.Model):
     other result write hear
     
     """
+
     def _format(self):
         d = {}
         d['id'] = self.id
@@ -72,5 +76,7 @@ class Result(db.Model):
         d['men'] = self.men
         d['ps'] = self.ps
         return d
+
+
 if __name__ == "__main__":
     db.create_all()
