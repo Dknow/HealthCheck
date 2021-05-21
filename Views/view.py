@@ -107,7 +107,8 @@ def task_petch():
             host=data['host'],
             port=data['port'],
             user=data['user'],
-            password=data['password']
+            password=data['password'],
+            device_type = data['device_type']
         )
         db.session.add(new)
         db.session.flush()
@@ -140,13 +141,29 @@ def task_del(id):
 @app.route('/task_list', methods=['GET'])
 def task_list():
     tasks = Task.query.filter().all()
-    items = [t._format for t in tasks]
-    # retdata = {'items': items}
-    # return render_template('task_list.html', **retdata)
-    return render_template('task_list.html', items=items)
+    items = []
+    for i in tasks:
+        d = {}
+        d['id'] = i.id
+        d['device_name'] = i.device_name
+        d['host'] = i.host
+        d['port'] = i.port
+        # d['user'] = i.user
+        # d['password'] = i.password
+        d['device_type'] = i.device_type
+        if i.status ==None:
+            d['status']= 'wait'
+        elif i.status==True:
+            d['status']= 'success'
+        elif i.status==False:
+            d['status']= 'failed'
+        items.append(d)
+    return render_template('task_list.html', tasks=items)
+
 
 
 @app.route('/task_result/<int:task_id>', methods=['GET', "DELETE"])
+@app.route('/task_result', methods=['GET', "DELETE"])
 def result(task_id=None):
     '''
     params
@@ -163,9 +180,17 @@ def result(task_id=None):
     res = {}
     if task_id:
         r = Result.query.filter_by(task_id=task_id).first()
-        if r: res = r._format
+        if r:
+            res = {}
+            res['id'] = r.id
+            res['device_id'] = r.device_id
+            res['task_id'] = r.task_id
+            res['start_time'] = r.start_time
+            res['uptime'] = r.uptime
+            res['men'] = r.men
+            res['ps'] = r.ps
 
-    return render_template('task_result.html', res=res)
+    return render_template('task_result.html', task_res = res)
 
 
 @app.route('/report', methods=['POST', "DELETE"])

@@ -7,19 +7,32 @@
 {% block webinfo %}
 <div class="container">
     <table class="col-md-6 col-sm-6 col-lg-4">
-        <!--    <div class="row" style="margin-bottom: 20px;margin-top: 20px">-->
         <thead class="col-lg-12">
-            <span class="label label-info">host</span>
-            <span class="label label-info">ip</span>
-            <span class="label label-info">device_name</span>
-            <span class="label label-info">device_type</span>
-            <span class="label label-info">status</span>
+        <span class="label label-info">TASK_ID</span>
+        <span class="label label-info">DEVICE_NAME</span>
+        <span class="label label-info">HOST</span>
+        <span class="label label-info">IP</span>
+        <span class="label label-info">DEVICE_TYPE</span>
+        <span class="label label-info">STATUS</span>
+        <span class="label label-info">RESULT</span>
 
         </thead>
         <tbody class="col-lg-12">
-            {% for i in items %}
-                <span class="label label-info">{{ i.ip }}</span>
-            {% endfor%}
+        {% for i in tasks %}
+        <!--                <span class="label label-info">{{ i['device_name'] }}</span>-->
+        <div class="row" style="margin-bottom: 20px;margin-top: 20px">
+            <span class="label label-server">{{ i['id']}}</span>
+            <span class="label label-server">{{ i['device_name']}}</span>
+            <span class="label label-server">{{ i['host']}}</span>
+            <span class="label label-server">{{ i['port']}}</span>
+            <span class="label label-server">{{ i['device_type']}}</span>
+            <span class="label label-server">{{ i['status']}}</span>
+
+            {% if i['status'] == "success"%}
+                <span class="label label-server"><a href="task_result">查看结果</a></span>
+            {%endif%}
+        </div>
+        {% endfor%}
         </tbody>
 
     </table>
@@ -32,43 +45,6 @@
         {% endfor %}
     </div>
 </div>
-<!--<div class="row">-->
-<!--    {% for i in items %}-->
-<!--    <div class="col-md-6 col-sm-6 col-lg-4">-->
-<!--        <div class="portlet" style="min-height: 125px;">-->
-<!--            <div class="portlet-heading portlet-default">-->
-<!--                <a href="http://{{ i['ip'] }}:{{ i['port'] }}" target="_blank">-->
-<!--                    &lt;!&ndash;                                <h3 class="portlet-title" style="color:#358ace !important;">{{ i['ip'] }}:{{ i['port'] }}</h3>&ndash;&gt;-->
-<!--                </a>-->
-<!--                {% if i['host'] %}-->
-<!--                <p class="label label-server" style="line-height: 30px;">{{ i['host'] }}</p>-->
-<!--                {% endif %}-->
-<!--                <div class="portlet-widgets">-->
-<!--                    &lt;!&ndash;                                {% if i['vul_level'] == 0 %}&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                    <p class="label font-13 tag-danger">紧急</p>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                {% elif i['vul_level'] == 1 %}&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                    <p class="label font-13 tag-high">高危</p>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                {% elif i['vul_level'] == 2 %}&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                    <p class="label font-13 tag-middle">中危</p>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                {% elif i['vul_level'] == 3 %}&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                    <p class="label font-13 tag-low">低危</p>&ndash;&gt;-->
-<!--                    &lt;!&ndash;                                {% elif i['vul_level'] == 4 %}&ndash;&gt;-->
-<!--                    <p class="label tag-tip font-13">风险</p>-->
-<!--                    &lt;!&ndash;                                {% endif %}&ndash;&gt;-->
-<!--                </div>-->
-<!--                <div class="clearfix"></div>-->
-<!--            </div>-->
-<!--            <div class="portlet-body">-->
-<!--                &lt;!&ndash;                    <p>{{ i['info'] }}</p>&ndash;&gt;-->
-<!--                <p>{{ i['port'] }}</p>-->
-
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--    {% endfor %}-->
-<!--</div>-->
-<!--</div>-->
-
 {% endblock %}
 
 {% block js %}

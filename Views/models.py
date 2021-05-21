@@ -33,6 +33,7 @@ class Task(db.Model):
     user = db.Column(db.String(128))
     password = db.Column(db.String(128))
     device_type = db.Column(db.String(128), nullable=False)
+    status = db.Column(db.Boolean)
 
     def _format(self):
         d = {}
@@ -43,7 +44,7 @@ class Task(db.Model):
         d['user'] = self.user
         d['password'] = self.password
         d['device_type'] = self.device_type
-
+        print(d)
         return d
 
 
