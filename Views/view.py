@@ -159,6 +159,8 @@ def task_list():
         params = []
         if  i.cpu:
             params.append('cpu')
+        if  i.disk:
+            params.append('disk')
         if  i.mem:
             params.append('mem')
         if i.uptime:
@@ -240,6 +242,7 @@ def add_device():
     port = request.form.get('port')
     device_name = request.form.get('device_name')
     user = request.form.get('user')
+    password = request.form.get('password')
     device_type = request.form.get('device_type')
 
     d = Device.query.filter_by(host=host, port=int(port)).first()
@@ -249,11 +252,20 @@ def add_device():
             host=host,
             port=int(port),
             user=user,
-            password=user,
+            password=password,
             device_type=device_type
         )
         db.session.add(new)
         db.session.flush()
+    # else:
+    #     d.device_name = device_name
+    #     d.host = host,
+    #     d.port = int(port),
+    #     d.user = user,
+    #     d.password = password,
+    #     d.device_type = device_type
+    #     db.session.flush()
+
     return redirect('/device')
 
 

@@ -448,27 +448,28 @@ class LinuxScanner():
         cmd = 'uptime'
         return self.execc_cmd(cmd)
 
-    # def cpu(self):
-    #     cmd = 'cat /proc/stat'
-    #     res =  self.execc_cmd(cmd)
-    #     spl = res.split('\n')[1].split(' ')
-    #     worktime = int(spl[2]) + int(spl[3]) + int(spl[4])
-    #     idletime = int(spl[5])
-    #     rate =  1 - float(worktime / (idletime+worktime) )
     def cpu(self):
-        cmd = 'top -bn 1 -i  -c'
-        res =  self.execc_cmd(cmd)
-        return res
+        cmd = 'cat /proc/stat'
+        res = self.execc_cmd(cmd)
+        spl = res.split('\n')[1].split(' ')
+        worktime = int(spl[2]) + int(spl[3]) + int(spl[4])
+        idletime = int(spl[5])
+        rate = (1 - float(worktime / (idletime + worktime))) * 100
+        return rate
+
+    # def cpu(self):
+    #     cmd = 'top -bn 1 -i  -c'
+    #     res =  self.execc_cmd(cmd)
+    #     return res
     def memory(self):
         cmd = 'free -m'
-        res  =   self.execc_cmd(cmd)
+        res = self.execc_cmd(cmd)
         if res:
             res = res.split('\n')[1].split(' ')
             for i in res:
-                if i =='':
+                if i == '':
                     res.remove(i)
-        return float(int(res[2])/int(res[1]))
-
+        return float(int(res[2]) / int(res[1]))
 
     def disk(self):
         cmd = linux_cmd['disk']
@@ -484,7 +485,7 @@ class LinuxScanner():
                             res = float(int(res.split('%')[0]) / 100)
         return res
 
-    def start(self):
+    def start(self, projects):
         warnig = False
         warnig_result = []
         cpu_info = ''
@@ -494,36 +495,39 @@ class LinuxScanner():
         version = ''
         try:
             if self.ssh:
-                version = self.version()
-                disk_info = self.disk()
-                if disk_info > 0.9:
-                    warnig = True
-                    warnig_result.append("DiskUsage > 90%")
-                # cpu_info = self.cpu()
-                # if cpu_info > 0.9:
-                #     warnig = True
-                #     warnig_result.append("CpuUsage Warning")
-                memory_info = self.memory()
-                if memory_info > 0.9:
-                    warnig = True
-                    warnig_result.append("MemoryUsage Warning")
-
-                uptime = self.uptime()
+                if 'version' in projects:
+                    version = self.version()
+                if 'disk' in projects:
+                    disk_info = self.disk()
+                    if disk_info > 0.9:
+                        warnig = True
+                        warnig_result.append("DiskUsage > 90%")
+                if 'cpu' in projects:
+                    cpu_info = self.cpu()
+                    if cpu_info > 0.9:
+                        warnig = True
+                        warnig_result.append("CpuUsage Warning")
+                if 'mem' in projects:
+                    memory_info = self.memory()
+                    if memory_info > 0.9:
+                        warnig = True
+                        warnig_result.append("MemoryUsage Warning")
+                if 'uptime' in projects:
+                    uptime = self.uptime()
             else:
                 warnig = True
                 warnig_result = ['无法建立ssh连接']
 
             if warnig:
-               self.send_mail(warnig_result)
+                self.send_mail(warnig_result)
             new = Result(
                 device_id=self.device_id,
-                version = version,
+                version=version,
                 cpu=cpu_info,
                 uptime=uptime,
-                men=memory_info,
+                mem=memory_info,
                 disk=disk_info,
                 ssh_connect=True if self.ssh else False
-
             )
             db.session.add(new)
             db.session.flush()
@@ -532,21 +536,48 @@ class LinuxScanner():
         except Exception as e:
             msg = 'Linux scan faild,device_id:{} error:{} '.format(self.device_id, str(e))
             warnig_result.append(msg)
+            new = Result(
+                device_id=self.device_id,
+                version=version,
+                cpu=cpu_info,
+                uptime=uptime,
+                mem=memory_info,
+                disk=disk_info,
+                ssh_connect=True if self.ssh else False
+            )
+            db.session.add(new)
+            db.session.flush()
             self.send_mail(warnig_result)
         finally:
             if self.ssh:
                 self.ssh.close()
 
-    def send_mail(self,warnig_result):
+    def send_mail(self, warnig_result):
         alert = MailAlert()
         alert.send(self.device_id, self.HOST, warnig_result)
+
 
 def scan():
     print('hello scan')
     # 获取配置
     tasks = Task.query.filter().all()
-    D =  Device.query.filter()
+    D = Device.query.filter()
+
     for t in tasks:
+        projects = []
+        if t.cpu:
+            projects.append('cpu')
+        if t.mem:
+            projects.append('mem')
+        if t.disk:
+            projects.append('disk')
+        if t.ssh_connect:
+            projects.append('ssh_connect')
+        if t.uptime:
+            projects.append('uptime')
+        if t.version:
+            projects.append('version')
+
         # if t.device_type == HUAWEI_Switch.device_type:
         #     SCAN = HUAWEI_Switch(t.host, t.port, t.user, t.password, t.id)
         #     SCAN.start()
@@ -559,7 +590,8 @@ def scan():
         d = D.filter_by(id=t.device_id).first()
         if d:
             SCAN = LinuxScanner(d.host, d.port, d.user, d.password, d.id)
-            SCAN.start()
+
+            SCAN.start(projects)
 
 
 if __name__ == '__main__':
