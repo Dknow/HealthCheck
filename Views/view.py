@@ -7,7 +7,7 @@ import json
 
 from Views import app, db
 from Views.common import logincheck
-from Views.models import Task, Result
+from Views.models import Task, Result, Device, EmailHistory
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -76,7 +76,19 @@ def task():
 
 @app.route('/add_task', methods=['GET'])
 def task_add():
-    return render_template('add_task.html')
+    deviceItems = []
+    devices = Device.query.filter_by().all()
+    for i in devices:
+        d = {}
+        d['id'] = i.id
+        d['device_name'] = i.device_name
+        d['host'] = i.host
+        d['port'] = i.port
+        d['user'] = i.user
+        d['device_type'] = i.device_type
+        d['update_time'] = i.update_time
+        deviceItems.append(d)
+    return render_template('add_task.html', title="添加任务",deviceItems=deviceItems)
 
 
 @app.route('/add_task', methods=['POST', 'PUT'])
@@ -91,29 +103,20 @@ def task_petch():
     :return:
     '''
     data = request.form
-    t = Task.query.filter(and_(Task.host == data['host'], Task.port == int(data['port']))).all()
-    if t:
-        if request.method == "POST":
+    print(data['device_id'])
+    new = Task(
+        task_name=data.get('task_name'),
+        device_id=int(data.get('device_id')),
+        cpu=True if data.get('cpu') in (1,"1") else False,
+        mem=True if data.get('mem') in (1,"1") else False,
+        disk=True if data.get('disk') in (1,"1") else False,
+        uptime=True if data.get('uptime') in (1,"1") else False,
+        version=True if data.get('version') in (1,"1") else False,
+        ssh_connect=True if data.get('ssh_connect') in (1, "1") else False,
 
-            retdata = {'success': True,
-                       'msg': 'Already exists'}
-        else:
-            t.update(data)
-            db.session.flush()
-            retdata = {'success': True}
-    else:
-        new = Task(
-            device_name=data.get('device_name'),
-            host=data['host'],
-            port=data['port'],
-            user=data['user'],
-            password=data['password'],
-            device_type = data['device_type']
-        )
-        db.session.add(new)
-        db.session.flush()
-        retdata = {'success': True}
-    # return json.dumps(retdata)
+    )
+    db.session.add(new)
+    db.session.flush()
     return redirect(url_for('task_list'))
 
 
@@ -145,39 +148,34 @@ def task_list():
     for i in tasks:
         d = {}
         d['id'] = i.id
-        d['device_name'] = i.device_name
-        d['host'] = i.host
-        d['port'] = i.port
-        # d['user'] = i.user
-        # d['password'] = i.password
-        d['device_type'] = i.device_type
-        if i.status ==None:
-            d['status']= 'wait'
-        elif i.status==True:
-            d['status']= 'success'
-        elif i.status==False:
-            d['status']= 'failed'
-        items.append(d)
-    return render_template('task_list.html', tasks=items)
+        d['task_name'] = i.task_name
+        d['device_name'] = ''
+        if  i.device_id:
+            device  = Device.query.filter_by(id=int(i.device_id)).first()
+            if  device:
+                d['device_name'] = device.device_name
+                d['device_host'] = device.host
 
+        params = []
+        if  i.cpu:
+            params.append('cpu')
+        if  i.mem:
+            params.append('mem')
+        if i.uptime:
+            params.append('uptime')
+        if i.version:
+            params.append('version')
+        if i.ssh_connect:
+            params.append('ssh_connect')
+        d["params"] = params
+        items.append(d)
+    return render_template('task_list.html', items=items, title="任务列表")
 
 
 @app.route('/task_result/<int:task_id>', methods=['GET', "DELETE"])
 @app.route('/task_result', methods=['GET', "DELETE"])
 def result(task_id=None):
-    '''
-    params
-    deviceID
-    result
-        1
-        2
-        3
-        4
-        ...
-
-    :return:
-    '''
-    res = {}
+    items = []
     if task_id:
         r = Result.query.filter_by(task_id=task_id).first()
         if r:
@@ -187,17 +185,91 @@ def result(task_id=None):
             res['task_id'] = r.task_id
             res['start_time'] = r.start_time
             res['uptime'] = r.uptime
-            res['men'] = r.men
+            res['mem'] = r.mem
             res['ps'] = r.ps
+            items.append(res)
+    else:
+        item_list = Result.query.filter_by().all()
+        deviceQuery = Device.query
+        for i in item_list:
+            res = {}
+            res['id'] = i.id
+            res['device_id'] = i.device_id
+            res['task_id'] = i.task_id
+            res['start_time'] = i.start_time
+            res['uptime'] = i.uptime
+            res['mem'] = i.mem
+            res['disk'] = i.disk
+            res['cpu'] = i.cpu
+            res['version'] = i.version
+            res['ssh_connect'] = i.ssh_connect
+            if i.device_id:
+                device = deviceQuery.filter_by(id=i.device_id).first()
+                res['device_name'] = device.device_name
+                res['host'] = device.host
+            else:
+                res['device_name'] = ""
+                res['host'] = ""
+            items.append(res)
 
-    return render_template('task_result.html', task_res = res)
+    return render_template('task_result.html', items=items, title="运行结果")
 
 
-@app.route('/report', methods=['POST', "DELETE"])
-def report():
-    '''
+@app.route('/device', methods=['GET'])
+def get_device():
+    item_list = Device.query.filter_by().all()
+    items = []
+    for i in item_list:
+        d = {}
+        d['id'] = i.id
+        d['device_name'] = i.device_name
+        d['host'] = i.host
+        d['port'] = i.port
+        d['user'] = i.user
+        d['device_type'] = i.device_type
+        d['update_time'] = i.update_time
 
-    get result
-    :return:
-    '''
-    return 'report'
+        items.append(d)
+
+    return render_template('device_management.html', title="设备管理", items=items)
+
+
+@app.route('/add_device', methods=['POST'])
+def add_device():
+    host = request.form.get('host')
+    port = request.form.get('port')
+    device_name = request.form.get('device_name')
+    user = request.form.get('user')
+    device_type = request.form.get('device_type')
+
+    d = Device.query.filter_by(host=host, port=int(port)).first()
+    if not d:
+        new = Device(
+            device_name=device_name,
+            host=host,
+            port=int(port),
+            user=user,
+            password=user,
+            device_type=device_type
+        )
+        db.session.add(new)
+        db.session.flush()
+    return redirect('/device')
+
+
+@app.route('/message_record', methods=['GET'])
+def message_record():
+    # 查询邮件发送记录
+    items = []
+    itmes_list = EmailHistory.query.all()
+    for i in itmes_list:
+        d = {}
+        d['id'] = i.id
+        d['device_id'] = i.device_id
+        d['warning'] = i.warning
+        d['warning_result'] = i.warning_result
+        d['send_time'] = i.send_time
+        d['recive_email'] = i.recive_email
+
+        items.append(d)
+    return render_template('message_record.html', title="邮件记录", items=items)

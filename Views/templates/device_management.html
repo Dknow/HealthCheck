@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block webinfo %}
+<div class="container">
+    <h2>设备管理</h2>
+    <p>结果以当前情况为准，可去记录中查看。</p>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>设备id</th>
+                <th>设备名称</th>
+                <th>ip(host)</th>
+                <th>port</th>
+                <!--                <th>ssh端口</th>-->
+                <th>用户名</th>
+                <!--                <th>密码</th>-->
+                <th>系统类型</th>
+                <th>添加时间</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in items%}
+            <tr>
+                <td>{{i['id']}}</td>
+                <td>{{i['device_name']}}</td>
+                <td>{{i['host']}}</td>
+                <td>{{i['port']}}</td>
+                <td>{{i['user']}}</td>
+                <td>{{i['device_type']}}</td>
+                <td>{{i['update_time']}}</td>
+
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+    添加设备
+</button>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    添加设备
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <form class="form-horizontal" role="form" action="add_device" method="post">
+                        <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
+
+                        <label for="firstname" class="col-sm-2 control-label">设备名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="device_name" name="device_name"
+                                   placeholder="请输入设备名称">
+                        </div>
+
+                        <label for="lastname" class="col-sm-2 control-label">ip(host)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="host" name="host"
+                                   placeholder="请输入ip(host)">
+                        </div>
+
+                        <label for="lastname" class="col-sm-2 control-label">ssh端口</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="port" name="port"
+                                   placeholder="请输入ssh端口">
+                        </div>
+
+
+                        <label for="lastname" class="col-sm-2 control-label">用户名</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="user" name="user"
+                                   placeholder="请输入用户名">
+                        </div>
+
+                        <label for="lastname" class="col-sm-2 control-label">密码</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="password" name="password"
+                                   placeholder="请输入密码">
+                        </div>
+
+                        <label for="name">系统类型</label>
+                        <select class="form-control" name="device_type">
+                            <option value="centos">centos</option>
+                            <option value="ubuntu">ubuntu</option>
+                            <!--      <option>3</option>-->
+                            <!--      <option>4</option>-->
+                            <!--      <option>5</option>-->
+                        </select>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                提交更改
+                            </button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+{% endblock %}

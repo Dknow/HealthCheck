@@ -1,69 +1,69 @@
 {% extends "layout.html" %}
-{% block css %}
-<link href="static/buss/css/task.css" rel="stylesheet" type="text/css"/>
-<link href="static/plugin/sweetalert/sweetalert.css" rel="stylesheet" type="text/css"/>
-{% endblock %}
+
 {% block webinfo %}
-<div class="wrapper-page">
-    <div class="m-t-40 card-box" style="background-color: rgba(0,0,0,0.6)">
-        <div class="text-center">
-            <h4 class="text-uppercase font-bold m-b-0">新增任务</h4>
+<div class="container">
+    <h2>添加任务</h2>
+    <p>结果以当前情况为准，可去记录中查看。</p>
+    <form class="form-horizontal" role="form" action="add_task" method="post">
+        <input type="hidden" name="csrf_token" value="{{csrf_token()}}"/>
+
+        <div class="form-group">
+            <h3 class="text-center">添加任务</h3>
+            <label for="firstname" class="col-sm-2 control-label">任务名称</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="firstname" name="task_name"
+                       placeholder="请输入任务名称">
+            </div>
         </div>
-        <div class="panel-body">
-            <form class="form-horizontal m-t-20" action="add_task" method="post">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <div class="form-group">
-                    <div class="col-xs-12">
-                        <label for="device_type" class="control-label">设备类型</label>
-                        <select class="form-control" id="device_type" name="device_type">
-                            <option></option>
-                            <option value="HUAWEI_Switch">HUAWEI_Switch</option>
-                            <option value="H3C_Switch">H3C_Switch</option>
-                        </select>
-                    </div>
 
-                </div>
-                <div class="form-group ">
-                    <div class="col-xs-12">
-                        <input class="form-control" type="text" required="" placeholder="设备名称" name="deviceName">
-                    </div>
-                </div>
-                <div class="form-group ">
-                    <div class="col-xs-12">
-                        <input class="form-control" type="text" required="" placeholder="IP" name="host">
-                    </div>
-                </div>
-                <div class="form-group ">
-                    <div class="col-xs-12">
-                        <input class="form-control" type="text" required="" placeholder="端口" name="port">
-                    </div>
-                </div>
-                <div class="form-group ">
-                    <div class="col-xs-12">
-                        <input class="form-control" type="text" required="" placeholder="用户名" name="user">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-xs-12">
-                        <input class="form-control" type="password" required="" placeholder="密码" name="password">
-                    </div>
-                </div>
-                <div class="form-group text-center m-t-30">
-                    <div class="col-xs-12">
-                        <button class="btn btn-bordred btn-block waves-effect waves-light" type="submit"
-                                style="background-color: rgba(113,182,249,0.8);color:white">添加
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <!--        <div class="form-group">-->
+        <!--            <label for="lastname" class="col-sm-2 control-label">IP地址</label>-->
+        <!--            <div class="col-sm-10">-->
+        <!--                <input type="text" class="form-control" id="lastname"-->
+        <!--                       placeholder="请输入IP地址">-->
+        <!--            </div>-->
+        <!--        </div>-->
 
+        <!--        <div class="form-group">-->
+        <!--            <label for="lastname" class="col-sm-2 control-label">端口号</label>-->
+        <!--            <div class="col-sm-10">-->
+        <!--                <input type="text" class="form-control" id="lastname"-->
+        <!--                       placeholder="请输入端口号">-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <div class="form-group">
+            <label for="name" class="col-sm-2 control-label">设备选择</label>
+            <div class="col-sm-10">
+                <select class="form-control" name="device_id">
+                    {% for i in deviceItems %}
+                    <option value={{ i['id'] }} > {{ i['device_name'] }} </option>
+                    {% endfor %}
+
+                </select>
+            </div>
         </div>
-    </div>
-</div>
+        <div class="form-group">
 
-{% endblock %}
+            <label for="name" class="col-sm-2 control-label">参数选择</label>
 
-{% block js %}
-<script src="static/plugin/sweetalert/sweetalert.min.js"></script>
-<script src="static/buss/js/task.js"></script>
-{% endblock %}
+            <div class="col-sm-10">
+                <!--                <select class="form-control">-->
+
+                <input type="checkbox" name="cpu" value="1">cpu</input><br>
+                <input type="checkbox" name="mem" value="1">men</input><br>
+                <input type="checkbox" name="disk" value="1">disk</input><br>
+                <input type="checkbox" name="uptime" value="1">uptime</input><br>
+                <input type="checkbox" name="version" value="1">version</input><br>
+                <input type="checkbox" name="ssh_connect" value="1">ssh_connect</input><br>
+                <!--                </select>-->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">添加</button>
+            </div>
+        </div>
+    </form>
+
+    {% endblock %}

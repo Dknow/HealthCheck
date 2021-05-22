@@ -2,10 +2,11 @@ import time
 
 import paramiko
 
-from Views.models import db
+from Views.models import db, Device, Task
 from Views.models import Result
 
-from Views.Alert import mail
+from Views.Alert import MailAlert
+
 
 class H3C_Switch():
     device_type = "H3C_Switch"
@@ -365,7 +366,7 @@ class HUAWEI_Switch():
         # 创建SSH连接
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-        ssh.connect(hostname=self.HOST, port=self.PORT, username=self.USER, password=self.PASSWORD, timeout=5)
+        ssh.connect(hostname=self.HOST, port=self.PORT, username=self.USER, password=self.PASSWORD, timeout=5000)
         ssh_shell = ssh.invoke_shell()
         # 将命令存在一个列表中
         cmds = ['', 'display version\n']
@@ -408,22 +409,164 @@ class HUAWEI_Switch():
             mail(msg)
 
 
+linux_cmd = {"uptime": "uptime",
+             "cpu": "",
+             "men": "",
+             "disk": "df -lh"}
+
+
+class LinuxScanner():
+    device_type = 'LinuxScanner'
+
+    def __init__(self, HOST, PORT, USER, PASSWORD, device_id):
+        self.HOST = HOST
+        self.PORT = PORT
+        self.USER = USER
+        self.PASSWORD = PASSWORD
+        self.device_id = device_id
+        self.ssh = self.get_ssh_connect()
+
+    def get_ssh_connect(self):
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+            ssh.connect(hostname=self.HOST, port=self.PORT, username=self.USER, password=self.PASSWORD, timeout=5)
+        except Exception as e:
+            ssh = []
+        return ssh
+
+    def execc_cmd(self, cmd):
+        ssh_stdin, ssh_stdout, ssh_stderr = self.ssh.exec_command(cmd)
+        res = ssh_stdout.read().decode()
+        return res
+
+    def version(self):
+        cmd = 'cat /etc/issue'
+        return self.execc_cmd(cmd)
+
+    def uptime(self):
+        cmd = 'uptime'
+        return self.execc_cmd(cmd)
+
+    # def cpu(self):
+    #     cmd = 'cat /proc/stat'
+    #     res =  self.execc_cmd(cmd)
+    #     spl = res.split('\n')[1].split(' ')
+    #     worktime = int(spl[2]) + int(spl[3]) + int(spl[4])
+    #     idletime = int(spl[5])
+    #     rate =  1 - float(worktime / (idletime+worktime) )
+    def cpu(self):
+        cmd = 'top -bn 1 -i  -c'
+        res =  self.execc_cmd(cmd)
+        return res
+    def memory(self):
+        cmd = 'free -m'
+        res  =   self.execc_cmd(cmd)
+        if res:
+            res = res.split('\n')[1].split(' ')
+            for i in res:
+                if i =='':
+                    res.remove(i)
+        return float(int(res[2])/int(res[1]))
+
+
+    def disk(self):
+        cmd = linux_cmd['disk']
+        res = self.execc_cmd(cmd)
+        # 返回值信息太多，需要处理一下
+        if res:
+            res = res.split('\n')
+            for i in res:
+                if i.startswith('/dev/sda1'):
+                    for info in i.split(' '):
+                        if "%" in info:
+                            res = info
+                            res = float(int(res.split('%')[0]) / 100)
+        return res
+
+    def start(self):
+        warnig = False
+        warnig_result = []
+        cpu_info = ''
+        memory_info = ''
+        disk_info = ''
+        uptime = ''
+        version = ''
+        try:
+            if self.ssh:
+                version = self.version()
+                disk_info = self.disk()
+                if disk_info > 0.9:
+                    warnig = True
+                    warnig_result.append("DiskUsage > 90%")
+                # cpu_info = self.cpu()
+                # if cpu_info > 0.9:
+                #     warnig = True
+                #     warnig_result.append("CpuUsage Warning")
+                memory_info = self.memory()
+                if memory_info > 0.9:
+                    warnig = True
+                    warnig_result.append("MemoryUsage Warning")
+
+                uptime = self.uptime()
+            else:
+                warnig = True
+                warnig_result = ['无法建立ssh连接']
+
+            if warnig:
+               self.send_mail(warnig_result)
+            new = Result(
+                device_id=self.device_id,
+                version = version,
+                cpu=cpu_info,
+                uptime=uptime,
+                men=memory_info,
+                disk=disk_info,
+                ssh_connect=True if self.ssh else False
+
+            )
+            db.session.add(new)
+            db.session.flush()
+            print('Linux scan success:', self.device_id)
+
+        except Exception as e:
+            msg = 'Linux scan faild,device_id:{} error:{} '.format(self.device_id, str(e))
+            warnig_result.append(msg)
+            self.send_mail(warnig_result)
+        finally:
+            if self.ssh:
+                self.ssh.close()
+
+    def send_mail(self,warnig_result):
+        alert = MailAlert()
+        alert.send(self.device_id, self.HOST, warnig_result)
+
 def scan():
     print('hello scan')
     # 获取配置
-    from models import Task
     tasks = Task.query.filter().all()
+    D =  Device.query.filter()
     for t in tasks:
-        if t.device_type == HUAWEI_Switch.device_type:
-            SCAN = HUAWEI_Switch(t.host, t.port, t.user, t.password, t.id)
+        # if t.device_type == HUAWEI_Switch.device_type:
+        #     SCAN = HUAWEI_Switch(t.host, t.port, t.user, t.password, t.id)
+        #     SCAN.start()
+        # elif t.device_type == H3C_Switch.device_type:
+        #     SCAN = H3C_Switch(t.host, t.port, t.user, t.password, t.id)
+        #     SCAN.start()
+        # elif t.device_type == LinuxScanner.device_type:
+        #     SCAN = LinuxScanner(t.host, t.port, t.user, t.password, t.id)
+        #     SCAN.start()
+        d = D.filter_by(id=t.device_id).first()
+        if d:
+            SCAN = LinuxScanner(d.host, d.port, d.user, d.password, d.id)
             SCAN.start()
-        elif t.device_type == H3C_Switch.device_type:
-            SCAN = H3C_Switch(t.host, t.port, t.user, t.password, t.id)
-            SCAN.start()
-
-    # scan
-    # alert email
 
 
 if __name__ == '__main__':
-    pass
+    host = "192.168.131.4"
+    port = 22
+    user = 'user'
+    pwd = "Test1234"
+    d_id = 1
+    s = LinuxScanner(host, port, user, pwd, d_id)
+    s.start()

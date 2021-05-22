@@ -29,7 +29,9 @@ class Config(object):
             'func': 'Views.task:scan',  # 指定运行的函数
             # 'args': (1, 2),  # 传入函数的参数
             'trigger': 'interval',  # 指定 定时任务的类型
-            'seconds': 60*60*24  # 运行的间隔时间,每天执行一次
+            'seconds': 60*10  # 运行的间隔时间,10分钟一次
+            # 'seconds': 60 * 60 * 24  # 运行的间隔时间,每天执行一次
+
         }
     ]
 

@@ -6,19 +6,19 @@ from datetime import datetime
 from Views import db
 
 
-class User(db.Model):
-    __tablename__ = 'user'
-    __table_args__ = {
-        'extend_existing': True,
-    }
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(128), unique=True, nullable=False)
-    password = db.Column(db.String(128), nullable=False)
-    update_time = db.Column(db.TIMESTAMP, nullable=False)
-    create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
+# class User(db.Model):
+#     __tablename__ = 'user'
+#     __table_args__ = {
+#         'extend_existing': True,
+#     }
+#     id = db.Column(db.Integer, primary_key=True)
+#     username = db.Column(db.String(128), unique=True, nullable=False)
+#     password = db.Column(db.String(128), nullable=False)
+#     update_time = db.Column(db.TIMESTAMP, nullable=False)
+#     create_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
+#
+#     def __repr__(self):
+#         return '<User %r>' % self.username
 
 
 class Task(db.Model):
@@ -27,26 +27,15 @@ class Task(db.Model):
         'extend_existing': True,
     }
     id = db.Column(db.Integer, primary_key=True)
-    device_name = db.Column(db.String(128))
-    host = db.Column(db.String(128), nullable=False)
-    port = db.Column(db.Integer, nullable=False)
-    user = db.Column(db.String(128))
-    password = db.Column(db.String(128))
-    device_type = db.Column(db.String(128), nullable=False)
+    task_name = db.Column(db.String(128))
+    device_id = db.Column(db.Integer)
+    cpu = db.Column(db.Boolean)
+    mem = db.Column(db.Boolean)
+    disk = db.Column(db.Boolean)
+    version = db.Column(db.Boolean)
+    uptime = db.Column(db.Boolean)
     status = db.Column(db.Boolean)
-
-    def _format(self):
-        d = {}
-        d['id'] = self.id
-        d['device_name'] = self.device_name
-        d['host'] = self.host
-        d['port'] = self.port
-        d['user'] = self.user
-        d['password'] = self.password
-        d['device_type'] = self.device_type
-        print(d)
-        return d
-
+    ssh_connect = db.Column(db.Boolean)
 
 class Result(db.Model):
     __tablename__ = 'result'
@@ -59,8 +48,11 @@ class Result(db.Model):
     start_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
     cpu = db.Column(db.String(128))
     uptime = db.Column(db.String(128))
-    men = db.Column(db.String(128))
-    ps = db.Column(db.String(128))
+    mem = db.Column(db.String(128))
+    disk = db.Column(db.String(128))
+    ssh_connect = db.Column(db.Boolean)
+    version = db.Column(db.String(128))
+
     """
     other result write hear
     
@@ -74,9 +66,39 @@ class Result(db.Model):
         d['start_time'] = self.start_time
         d['cpu'] = self.cpu
         d['uptime'] = self.uptime
-        d['men'] = self.men
-        d['ps'] = self.ps
+        d['mem'] = self.mem
+        d['disk'] = self.disk
+        d['ssh_connect'] = self.ssh_connect
         return d
+
+class Device(db.Model):
+    __tablename__ = 'device'
+    __table_args__ = {
+        'extend_existing': True,
+    }
+    id = db.Column(db.Integer, primary_key=True)
+    device_name = db.Column(db.String(128))
+    host = db.Column(db.String(128), nullable=False)
+    port = db.Column(db.Integer, nullable=False)
+    user = db.Column(db.String(128))
+    password = db.Column(db.String(128))
+    device_type = db.Column(db.String(128), nullable=False)
+    update_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
+    # status = db.Column(db.Boolean)
+
+class EmailHistory(db.Model):
+    __tablename__ = 'email_history'
+    __table_args__ = {
+        'extend_existing': True,
+    }
+    id = db.Column(db.Integer, primary_key=True)
+    device_id = db.Column(db.Integer)
+    warning = db.Column(db.Boolean)
+    warning_result = db.Column(db.String(128))
+    recive_email = db.Column(db.String(128))
+    send_time = db.Column(db.DateTime, default=datetime.now, nullable=False)
+
 
 
 if __name__ == "__main__":
