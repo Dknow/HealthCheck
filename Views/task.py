@@ -595,10 +595,12 @@ def scan():
 
 
 if __name__ == '__main__':
+    # host = "192.168.3.66"
     host = "192.168.131.4"
+
     port = 22
     user = 'user'
     pwd = "Test1234"
     d_id = 1
     s = LinuxScanner(host, port, user, pwd, d_id)
-    s.start()
+    s.start(['mem'])
