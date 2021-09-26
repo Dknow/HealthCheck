@@ -1,4 +1,7 @@
 # this is readme
+## About
+    For network device health check system, support centos, ubuntu, windows and Huawei routers and other hardware
+
 ### how to start
     git clone
     cd HealthCheck
