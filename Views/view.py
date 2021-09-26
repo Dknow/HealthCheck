@@ -155,7 +155,9 @@ def task_list():
             if  device:
                 d['device_name'] = device.device_name
                 d['device_host'] = device.host
-
+            else:
+                d['device_name'] = ''
+                d['device_host'] = ''
         params = []
         if  i.cpu:
             params.append('cpu')
@@ -207,8 +209,12 @@ def result(task_id=None):
             res['ssh_connect'] = i.ssh_connect
             if i.device_id:
                 device = deviceQuery.filter_by(id=i.device_id).first()
-                res['device_name'] = device.device_name
-                res['host'] = device.host
+                if device:
+                    res['device_name'] = device.device_name
+                    res['host'] = device.host
+                else:
+                    res['device_name'] = ""
+                    res['host'] = ""
             else:
                 res['device_name'] = ""
                 res['host'] = ""
